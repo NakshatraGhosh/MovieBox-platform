@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  service-registry:
+    build: ./Service-Registry
+    ports:
+      - "8761:8761"
+    networks:
+      - moviebox-net
+
+  location-service:
+    build: ./location-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - service-registry
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    networks:
+      - moviebox-net
+
+  theatre-service:
+    build: ./Theatre-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - service-registry
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    networks:
+      - moviebox-net
+
+  screening-service:
+    build: ./screening-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - service-registry
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    networks:
+      - moviebox-net
+
+  seat-service:
+    build: ./seat-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - service-registry
+      - mysql
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    networks:
+      - moviebox-net
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8086:8086"
+    depends_on:
+      - service-registry
+    networks:
+      - moviebox-net
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Lol0987##
+      MYSQL_DATABASE: MOVIEBOX
+    ports:
+      - "3306:3306"
+    networks:
+      - moviebox-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - moviebox-net
+
+networks:
+  moviebox-net:
+    driver: bridge
